@@ -48,6 +48,75 @@ animatedElements.forEach((element) => {
     observer.observe(element);
 });
 
+const chickenButton = document.querySelector('.runaway-chicken');
+const chickenPlayground = document.querySelector('.chicken-playground');
+const chickenStatus = document.querySelector('.chicken-status');
+
+if (chickenButton && chickenPlayground) {
+    let escapeCount = 0;
+    const margin = 18;
+
+    const setStatus = (message) => {
+        if (chickenStatus) {
+            chickenStatus.textContent = message;
+        }
+    };
+
+    const repositionChicken = (announceEscape = true) => {
+        const playgroundWidth = chickenPlayground.clientWidth;
+        const playgroundHeight = chickenPlayground.clientHeight;
+        const chickenWidth = chickenButton.offsetWidth;
+        const chickenHeight = chickenButton.offsetHeight;
+
+        const maxX = Math.max(playgroundWidth - chickenWidth, 0);
+        const maxY = Math.max(playgroundHeight - chickenHeight, 0);
+
+        const safeX = Math.max(maxX - margin * 2, 0);
+        const safeY = Math.max(maxY - margin * 2, 0);
+
+        const x = safeX > 0 ? margin + Math.random() * safeX : maxX / 2;
+        const y = safeY > 0 ? margin + Math.random() * safeY : maxY / 2;
+        const rotation = (Math.random() * 24 - 12).toFixed(2);
+
+        chickenButton.style.setProperty('--x', `${x}px`);
+        chickenButton.style.setProperty('--y', `${y}px`);
+        chickenButton.style.setProperty('--rotate', `${rotation}deg`);
+
+        chickenButton.classList.add('escaping');
+        setTimeout(() => chickenButton.classList.remove('escaping'), 320);
+
+        if (announceEscape) {
+            escapeCount += 1;
+            setStatus(`Ayam kabur ${escapeCount}x!`);
+        } else if (escapeCount === 0) {
+            setStatus('Ayam siap kabur!');
+        }
+    };
+
+    const triggerEscape = (event) => {
+        if (event) {
+            event.preventDefault();
+        }
+        repositionChicken(true);
+    };
+
+    chickenButton.addEventListener('pointerdown', triggerEscape);
+    chickenButton.addEventListener('pointerenter', triggerEscape);
+    chickenButton.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            triggerEscape(event);
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        repositionChicken(false);
+    });
+
+    requestAnimationFrame(() => {
+        repositionChicken(false);
+    });
+}
+
 const parallaxHero = document.querySelector('.hero-content');
 
 window.addEventListener('mousemove', (event) => {
